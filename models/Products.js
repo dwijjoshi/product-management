@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
     image:{
-        type:String,
-        required:[true,"Please submit an image"]
+        type:Buffer,
+        required:[true,"Please enter an Image"]
     },
     name:{
         type:String,

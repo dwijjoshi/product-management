@@ -1,11 +1,28 @@
 const Product = require('../models/Products');
 const User = require("../models/User");
-const Cart = require("../models/Cart")
+const Cart = require("../models/Cart");
+const multer = require('multer')
 
-exports.createProduct = async(req,res) => {
+
+const storage = multer.memoryStorage({
+    // destination: (req, file, cb) => {
+    //     cb(null, 'uploads/'); // Set the destination folder where files will be stored
+    //   },
+    //   filename: (req, file, cb) => {
+    //     // Set the filename to be the current date and time + the original file name
+    //     cb(null, Date.now() + '-' + file.originalname);
+    //   },
+}); // Store the image in memory
+const upload = multer({ storage: storage });
+
+
+exports.createProduct = (upload.single('image'),async(req,res) => {
     try {
+        console.log(req.file);
+        
+    
         const newProduct = {
-            image :req.body.image,
+            image :req.file.buffer,
             name:req.body.name,
             code:req.body.code,
             releaseDate:req.body.releaseDate,
@@ -26,7 +43,7 @@ exports.createProduct = async(req,res) => {
             message:error.message
         })
     }
-}
+});
 
 exports.getAllProducts = async(req,res) => {
     try {
@@ -50,6 +67,13 @@ exports.getSingleProduct = async(req,res) => {
         const id = req.params.id;
         const singleProduct = await Product.findById(id);
 
+        if(!singleProduct){
+            res.status(404).json({
+                success:false,
+                message:"Product not found"
+            })
+        }
+
         res.status(201).json({
             success:true,
             singleProduct,
@@ -68,6 +92,8 @@ exports.deleteProduct = async(req,res) => {
     try {
         const id = req.params.id;
         await Product.findByIdAndDelete(id);
+
+        
         res.status(201).json({
             success:true,
             message:"Product deleted Successfully"
@@ -85,8 +111,9 @@ exports.deleteProduct = async(req,res) => {
 exports.updateProduct = async(req,res) => {
     try {
         const id = req.params.id;
+        console.log(req.file);
     const newBody = {
-        image:req.body.image,
+        image:req.file.buffer,
         name:req.body.name,
         code:req.body.code,
         releaseDate:req.body.releaseDate,
@@ -96,6 +123,14 @@ exports.updateProduct = async(req,res) => {
 
     const updatedProduct = await Product.findByIdAndUpdate(id,newBody,{new:true})
 
+    if(!updatedProduct){
+        res.status(404).json({
+            success:false,
+            message:"Product not found",
+            
+        })
+    }
+    console.log(updatedProduct);
     res.status(201).json({
         success:true,
         updatedProduct,
@@ -115,6 +150,8 @@ exports.addToCart = async(req,res) => {
         const id = req.params.id;
         console.log(id);
     const product = await Product.findById(id);
+    
+    console.log(productAvailable);
     const cartProductBody = {
         image:product.image,
         name:product.name,
@@ -177,5 +214,48 @@ exports.getAllCartProducts = async(req,res) => {
         })
         
     }
+}
+
+exports.incrementQuantity = async(req,res) => {
+
+    try {
+        const id = req.params.id;
+    const product = await Cart.findById(id);
+    product.quantity += 1;
+    await product.save();
+    res.status(201).json({
+        success:true,
+        message:"Quantity increased.",
+        product
+    })
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:error.message,
+
+        })
+    }
+    
+
+}
+
+exports.decrementQuantity = async(req,res) => {
+    try {
+        const id = req.params.id;
+    const product = await Cart.findById(id);
+    product.quantity -= 1;
+    await product.save();
+    res.status(201).json({
+        success:true,
+        message:"Quantity Decremented",
+        product
+    })
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+    
 }
 

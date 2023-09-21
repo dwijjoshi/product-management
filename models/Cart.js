@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const cartSchema = new mongoose.Schema({
     image:{
-        type:String,
-        required:[true,"Please submit an image"]
+        type:Buffer,
+        required:[true,"Please enter an image"]
     },
     name:{
         type:String,
@@ -31,6 +31,10 @@ const cartSchema = new mongoose.Schema({
     amount:{
         type:Number,
         default:0
+    },
+    quantity:{
+        type:Number,
+        default:1
     }
 
 })
