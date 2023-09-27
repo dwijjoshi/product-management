@@ -111,9 +111,12 @@ exports.deleteProduct = async(req,res) => {
 exports.updateProduct = async(req,res) => {
     try {
         const id = req.params.id;
-        console.log(req.file);
+
+        const product = await Product.findById(id);
+        
+        
     const newBody = {
-        image:req.file.buffer,
+        image:req.file ? req.file.buffer : product.image,
         name:req.body.name,
         code:req.body.code,
         releaseDate:req.body.releaseDate,
@@ -151,7 +154,7 @@ exports.addToCart = async(req,res) => {
         console.log(id);
     const product = await Product.findById(id);
     
-    console.log(productAvailable);
+    
     const cartProductBody = {
         image:product.image,
         name:product.name,

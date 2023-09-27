@@ -16,22 +16,27 @@ const storage = multer.memoryStorage({
     //   },
 }); // Store the image in memory
 const upload = multer({ storage: storage });
-
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").config({ path: "backend/config/config.env" });
+  }
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
+const user = require("./routes/user")
 const product = require("./routes/products");
 const { updateProduct } = require("./controllers/products");
 app.use("/api/v1", product);
+app.use("/api/v1",user);
 
 app.put("/api/v1/products/:id",upload.single('image'),async(req,res) => {
     try {
         const id = req.params.id;
-        console.log(id);
-        console.log(req.body);
-        const imageBuffer = req.file.buffer; 
+        const product = await Product.findById(id);
+        
+
+        const imageBuffer = req.file ? req.file.buffer : product.image; 
     const newBody = {
         image:imageBuffer,
         name:req.body.name,
