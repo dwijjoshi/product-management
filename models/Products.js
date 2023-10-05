@@ -26,6 +26,10 @@ const productSchema = new mongoose.Schema({
     rating:{
         type:Number,
         required:[true,"Please enter a rating."]
+    },
+    quantity:{
+        type:Number,
+        default:1,
     }
 })
 
