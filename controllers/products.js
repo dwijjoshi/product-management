@@ -1,48 +1,10 @@
 const Product = require("../models/Products");
 const User = require("../models/User");
 const Cart = require("../models/Cart");
-const multer = require("multer");
+
 const Orders = require("../models/Orders");
 
-const storage = multer.memoryStorage({
-  // destination: (req, file, cb) => {
-  //     cb(null, 'uploads/'); // Set the destination folder where files will be stored
-  //   },
-  //   filename: (req, file, cb) => {
-  //     // Set the filename to be the current date and time + the original file name
-  //     cb(null, Date.now() + '-' + file.originalname);
-  //   },
-}); // Store the image in memory
-const upload = multer({ storage: storage });
 
-exports.createProduct =
-  (upload.single("image"),
-  async (req, res) => {
-    try {
-      console.log(req.file);
-
-      const newProduct = {
-        image: req.file.buffer,
-        name: req.body.name,
-        code: req.body.code,
-        releaseDate: req.body.releaseDate,
-        price: req.body.price,
-        rating: req.body.rating,
-      };
-
-      const product = await Product.create(newProduct);
-
-      res.status(201).json({
-        success: true,
-        message: "Product Created Successfully",
-      });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  });
 
 exports.getAllProducts = async (req, res) => {
   try {
@@ -102,12 +64,22 @@ exports.deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
     await Product.findByIdAndDelete(id);
+    const cartProducts = await Cart.find({productId:id})
+    for(const product of cartProducts){
+      await Cart.findByIdAndDelete(product._id);
+    }
+
+    const orderProducts = await Orders.find({productId:id});
+    for(const product of orderProducts){
+      await Orders.findByIdAndDelete(product._id);
+    }
 
     res.status(201).json({
       success: true,
       message: "Product deleted Successfully",
     });
   } catch (error) {
+    console.log("Just testing");
     res.status(500).json({
       success: false,
       message: error.message,
@@ -174,7 +146,8 @@ exports.addToCart = async (req, res) => {
     // const addedToCart = await Cart.create(cartProductBody);
 
     const user = await User.findById(req.user._id);
-    const product = await Product.findById(req.params.id);
+    if(user.isAdmin){
+      const product = await Product.findById(req.params.id);
     const cartProductBody = {
       userId:user,
       productId:product
@@ -188,6 +161,15 @@ exports.addToCart = async (req, res) => {
       addedToCart,
       message: "Product added to card successfully",
     });
+    }
+     else{
+      res.status(401).json({
+        success: false,
+        addedToCart,
+        message: "Admin cannot add to cart",
+      });
+     }
+    
   } catch (error) {
     console.log(error.message);
     res.status(500).json({
@@ -318,4 +300,69 @@ exports.myOrders = async(req,res) => {
   
 
 
+}
+
+exports.addProduct = async (req, res) => {
+  try {
+    console.log("Hello");
+
+    const imageBuffer = req.file.buffer;
+    console.log(imageBuffer);
+
+    const newProduct = {
+      image: imageBuffer,
+      name: req.body.name,
+      description:req.body.description,
+      code: req.body.code,
+      releaseDate: req.body.releaseDate,
+      price: req.body.price,
+      rating: req.body.rating,
+    };
+
+    const product = await Product.create(newProduct);
+
+    res.status(201).json({
+      success: true,
+      message: "Product Created Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+exports.editProduct = async (req, res) => {
+  try {
+    console.log(req.cookies);
+    const id = req.params.id;
+    const product = await Product.findById(id);
+
+    const imageBuffer = req.file ? req.file.buffer : product.image;
+    const newBody = {
+      image: imageBuffer,
+      name: req.body.name,
+      description:req.body.description,
+      code: req.body.code,
+      releaseDate: req.body.releaseDate,
+      price: req.body.price,
+      rating: req.body.rating,
+    };
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, newBody, {
+      new: true,
+    });
+    console.log(updatedProduct);
+    res.status(201).json({
+      success: true,
+      updatedProduct,
+      message: "Product Updated Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 }

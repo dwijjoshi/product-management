@@ -88,6 +88,7 @@ exports.logout = async (req, res) => {
         message: "Logged out",
       });
   } catch (error) {
+    
     res.status(500).json({
       success: false,
       message: error.message,

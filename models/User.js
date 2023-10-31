@@ -45,7 +45,7 @@ userSchema.pre("save", async function (next) {
   };
 
 userSchema.methods.generateToken = function(){
-    return jwt.sign({_id:this._id},"JWT_SECRET")
+    return jwt.sign({_id:this._id},process.env.JWT_SECRET)
 };
 
 module.exports = mongoose.model("User",userSchema)
