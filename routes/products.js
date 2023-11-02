@@ -31,7 +31,7 @@ const upload = multer({ storage: storage });
 const { isAuthenticated } = require("../middleware/auth");
 const router = express.Router();
 router.route("/single-product/:id").get(isAuthenticated,getSingleProduct).delete(isAuthenticated,deleteProduct);
-router.route("/products/:sortOptions").get(isAuthenticated, getAllProducts);
+router.route("/products/:sortOptions").get( isAuthenticated,getAllProducts);
 router.route('/add-product').post(upload.single("image"),isAuthenticated,addProduct)
 router.route('/edit-product/:id').put(upload.single("image"),isAuthenticated,editProduct)
 

@@ -60,8 +60,8 @@ exports.login = async (req, res) => {
     const token = await user.generateToken();
 
     res
-      .status(201)
-      .cookie("token", token, {
+      
+      .cookie('token', token, {
         expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       })
       .json({
