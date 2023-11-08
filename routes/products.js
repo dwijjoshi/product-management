@@ -34,9 +34,7 @@ router.route("/single-product/:id").get(isAuthenticated,getSingleProduct).delete
 router.route("/products/:sortOptions").get( isAuthenticated,getAllProducts);
 router.route('/add-product').post(upload.single("image"),isAuthenticated,addProduct)
 router.route('/edit-product/:id').put(upload.single("image"),isAuthenticated,editProduct)
-
 router.route("/add-to-cart/:id").get(isAuthenticated,addToCart).delete(isAuthenticated,removeFromCart);
-
 router.route("/cart").get(isAuthenticated,getAllCartProducts);
 router.route("/payment-made").get(isAuthenticated,paymentMade)
 router.route('/my-orders').get(isAuthenticated,myOrders)

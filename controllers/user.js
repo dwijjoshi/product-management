@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
 
     res
       
-      .cookie('token', token, {sameSite:'None',
+      .cookie('token', token, {
         expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       })
       .json({
