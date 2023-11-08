@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 const corsConfig = {
   credentials: true,
-  origin: true,
+  origin: 'http://localhost:4200',
 };
 app.use(cors(corsConfig));
 
