@@ -49,7 +49,6 @@ exports.login = async (req, res) => {
     }
 
     const isMatch = await user.matchPassword(password);
-
     if (!isMatch) {
       return res.status(400).json({
         success: false,
@@ -61,7 +60,7 @@ exports.login = async (req, res) => {
 
     res
       
-      .cookie('token', token, {
+      .cookie('token', token, {sameSite:'None',
         expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       })
       .json({
